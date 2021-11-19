@@ -1,0 +1,14 @@
+{
+  "name": "Sample NetDaemon App development",
+  "image": "mcr.microsoft.com/dotnet/sdk:5.0",
+  "postCreateCommand": "dotnet restore *.csproj",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "terminal.integrated.fontSize": 10
+  },
+  "extensions": [
+    "ms-dotnettools.csharp",
+    "k--kato.docomment",
+    "eamodio.gitlens"
+  ]
+}
