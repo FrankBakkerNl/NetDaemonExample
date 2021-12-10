@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using NetDaemon.HassModel.Entities;
-using NetDaemon.Helpers;
-
-[NetDaemonApp]
+﻿[NetDaemonApp]
 public class KlikoControle
 {
-    private readonly Dictionary<string, (BinarySensorEntity, SensorEntity)> _sensorMap;
+    private readonly Dictionary<string, (BinarySensorEntity, NumericSensorEntity)> _sensorMap;
     private readonly Entities _entities;
     private readonly Services _services;
 
@@ -16,7 +10,7 @@ public class KlikoControle
         _entities = new(ha);
         _services = new(ha);
         
-        _sensorMap = new Dictionary<string, (BinarySensorEntity, SensorEntity)>()
+        _sensorMap = new Dictionary<string, (BinarySensorEntity, NumericSensorEntity)>()
         {
             ["gft"]    = (_entities.BinarySensor.TrackerGftPresence, _entities.Sensor.TrackerGftRssiValue),
             ["papier"] = (_entities.BinarySensor.TrackerPapierPresence, _entities.Sensor.TrackerPapierRssiValue), 
@@ -40,13 +34,13 @@ public class KlikoControle
 
         SetMessage(currentKliko);
         
-        rssi.StateAllChanges().Where(s=>s.Entity.AsNumeric().State > 80)
+        rssi.StateAllChanges().Where(s=>s.Entity.State > 80)
             .Throttle(TimeSpan.FromMinutes(2)).Take(1).Subscribe(_ => ClearMessage());
     }
 
     private void SetMessage(string currentKliko)
     {
-        _services.Notify.MobileAppOneplusA6003(
+        _services.Notify.MobileAppPhoneFrank(
             title: "♻️\t"+ currentKliko,
             message: $"De {currentKliko} kliko moet naar buiten" ,
             data: new { tag= "kliko notification" }
@@ -55,7 +49,7 @@ public class KlikoControle
 
     private void ClearMessage()
     {
-        _services.Notify.MobileAppOneplusA6003(
+        _services.Notify.MobileAppPhoneFrank(
             message: "clear_notification",
             data: new { tag = "kliko notification" }
         );

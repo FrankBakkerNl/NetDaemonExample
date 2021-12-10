@@ -1,10 +1,5 @@
-using System;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using HomeAssistantGenerated;
 using Keypad;
-using NetDaemon.HassModel.Entities;
-using NetDaemon.Helpers;
 
 [NetDaemonApp]
 public class KeypadKitchen

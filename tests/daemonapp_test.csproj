@@ -8,10 +8,12 @@
 
  <ItemGroup>
 
-    <PackageReference Include="JoySoftware.NetDaemon.App" Version="21.46.2-beta" />
-    <PackageReference Include="JoySoftware.NetDaemon.DaemonRunner" Version="21.46.0-beta" />
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+
+    <PackageReference Include="JoySoftware.NetDaemon.App" Version="21.49.3" />
+    <PackageReference Include="JoySoftware.NetDaemon.DaemonRunner" Version="21.49.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
-    <PackageReference Include="JoySoftware.NetDaemon.Fakes" Version="21.46.0-beta" />
+    <PackageReference Include="JoySoftware.NetDaemon.Fakes" Version="21.49.3" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0-preview-20211109-03" />

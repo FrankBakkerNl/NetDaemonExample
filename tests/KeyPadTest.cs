@@ -1,6 +1,5 @@
 using System;
 using System.Reactive.Subjects;
-using JoySoftware.HomeAssistant.Model;
 using Microsoft.Reactive.Testing;
 using Moq;
 using NetDaemon.HassModel.Common;
@@ -8,11 +7,11 @@ using NetDaemon.HassModel.Entities;
 using Xunit;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace daemonapp_test
+namespace daemonapp_test;
+
+public class KeyPadTest
 {
-    public class KeyPadTest
-    {
-        private const string startHoldButtonEvent = @"
+    private const string startHoldButtonEvent = @"
 {
     ""event_type"": ""zha_event"",
     ""data"": {
@@ -36,7 +35,7 @@ namespace daemonapp_test
     }
 }";
 
-        private const string stopHoldButtonEvent = @"{
+    private const string stopHoldButtonEvent = @"{
     ""event_type"": ""zha_event"",
     ""data"": {
         ""device_ieee"": ""84:71:27:ff:fe:40:78:7b"",
@@ -56,41 +55,32 @@ namespace daemonapp_test
     }
 }";
         
-        [Fact]
-        public void TestKeypad3()
-        {
-            var haContextMock = new Mock<IHaContext>();
-            var eventSubject = new Subject<Event>();
-            haContextMock.Setup(m => m.Events).Returns(eventSubject);
-            var scheduler = new TestScheduler();
+    [Fact]
+    public void TestKeypad3()
+    {
+        var haContextMock = new Mock<IHaContext>();
+        var eventSubject = new Subject<Event>();
+        haContextMock.Setup(m => m.Events).Returns(eventSubject);
+        var scheduler = new TestScheduler();
 
-            var app = new KeypadKitchen(haContextMock.Object, scheduler);
+        var app = new KeypadKitchen(haContextMock.Object, scheduler);
 
-            // Start holding Button
-            var startHoldEent = MapEvent(JsonSerializer.Deserialize<HassEvent>(startHoldButtonEvent)!); 
-            eventSubject.OnNext(startHoldEent);
+        // Start holding Button
+        var startHoldEent = JsonSerializer.Deserialize<Event>(startHoldButtonEvent)!; 
+        eventSubject.OnNext(startHoldEent);
             
-            // Hold for 1 second
-            scheduler.AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
-            haContextMock.Verify(m=>m.CallService("light", "turn_on", 
-                It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
+        // Hold for 1 second
+        scheduler.AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+        haContextMock.Verify(m=>m.CallService("light", "turn_on", 
+            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
 
-            // Stop hold Button
-            var stoptOneEent = MapEvent(JsonSerializer.Deserialize<HassEvent>(stopHoldButtonEvent)!); 
-            eventSubject.OnNext(stoptOneEent);
+        // Stop hold Button
+        var stoptOneEent = JsonSerializer.Deserialize<Event>(stopHoldButtonEvent)!; 
+        eventSubject.OnNext(stoptOneEent);
 
-            // Assert
-            scheduler.AdvanceBy(TimeSpan.FromSeconds(10).Ticks);
-            haContextMock.Verify(m=>m.CallService("light", "turn_on",
-                It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
-        }
-
-        private static Event MapEvent(HassEvent hassEvent) => new ()
-        {
-            Origin = hassEvent.Origin,
-            EventType = hassEvent.EventType,
-            TimeFired = hassEvent.TimeFired,
-            DataElement = hassEvent.DataElement,
-        };
+        // Assert
+        scheduler.AdvanceBy(TimeSpan.FromSeconds(10).Ticks);
+        haContextMock.Verify(m=>m.CallService("light", "turn_on",
+            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
     }
 }

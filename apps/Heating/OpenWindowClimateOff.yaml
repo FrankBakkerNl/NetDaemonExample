@@ -18,7 +18,7 @@ OpenWindowClimateOff:
     climates:
       - climate.radiator_suze_thermostat
     windows:
-      - binary_sensor.raamsensor_suze
+      - binary_sensor.raam_suze
 
   - name: marius
     climates:

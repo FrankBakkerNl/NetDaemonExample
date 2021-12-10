@@ -6,3 +6,5 @@ global using NetDaemon.HassModel.Entities;
 global using System.Reactive.Linq;
 global using System;
 global using System.Linq;
+global using NetDaemon.Helpers;
+global using System.Collections.Generic;

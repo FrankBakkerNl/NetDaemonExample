@@ -1,52 +1,47 @@
-using System;
-using System.Reactive.Linq;
-using HomeAssistantGenerated;
-using NetDaemon.HassModel.Common;
-using NetDaemon.Helpers;
+using daemonapp.apps.Helpers;
 
-namespace daemonapp.apps.Cube
+namespace daemonapp.apps.Cube;
+
+[NetDaemonApp]
+public class MagicCube
 {
-    [NetDaemonApp]
-    public class MagicCube
+    private MediaPlayerEntity _mediaPlayerKeuken;
+    private SwitchEntity _keukenlamp;
+
+    public MagicCube(IHaContext ha)
     {
-        private MediaPlayerEntity _mediaPlayerKeuken;
-        private SwitchEntity _keukenlamp;
+        _mediaPlayerKeuken = ha.MyEntities().MediaPlayer.Keuken;
+        _keukenlamp = ha.MyEntities().Switch.EspBwKitchen2Relay;
 
-        public MagicCube(IHaContext ha)
+        ha.Events.Filter<ZhaEventData>("zha_event")
+            .Where(e => e.Data?.DeviceIeee == "00:15:8d:00:05:d9:d0:37")
+            .Subscribe(e => CubeEvent(e.Data!));
+    }
+
+    private void CubeEvent(ZhaEventData eventData)
+    {
+        switch (eventData.Command)
         {
-            _mediaPlayerKeuken = ha.MyEntities().MediaPlayer.Keuken;
-            _keukenlamp = ha.MyEntities().Switch.EspBwKitchen2Relay;
+            case "shake":
+                _mediaPlayerKeuken.MediaPlay();
+                _mediaPlayerKeuken.VolumeMute(isVolumeMuted: false);
+                break;
 
-            ha.Events.Filter<ZhaEventData>("zha_event")
-                .Where(e => e.Data?.DeviceIeee == "00:15:8d:00:05:d9:d0:37")
-                .Subscribe(e => CubeEvent(e.Data!));
-        }
+            case "drop":
+                _mediaPlayerKeuken.MediaPause();
+                break;
 
-        private void CubeEvent(ZhaEventData eventData)
-        {
-            switch (eventData.Command)
-            {
-                case "shake":
-                    _mediaPlayerKeuken.MediaPlay();
-                    _mediaPlayerKeuken.VolumeMute(isVolumeMuted: false);
-                    break;
+            case "rotate_left":
+                _mediaPlayerKeuken.VolumeDown();
+                break;
 
-                case "drop":
-                    _mediaPlayerKeuken.MediaPause();
-                    break;
-
-                case "rotate_left":
-                    _mediaPlayerKeuken.VolumeDown();
-                    break;
-
-                case "rotate_right":
-                    _mediaPlayerKeuken.VolumeUp();
-                    break;
+            case "rotate_right":
+                _mediaPlayerKeuken.VolumeUp();
+                break;
                 
-                case "flip":
-                    _keukenlamp.Toggle();
-                    break;
-            }
+            case "flip":
+                _keukenlamp.Toggle();
+                break;
         }
     }
 }
