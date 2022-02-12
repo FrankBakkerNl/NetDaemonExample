@@ -8,15 +8,13 @@
 
  <ItemGroup>
 
-    <PackageReference Include="FluentAssertions" Version="6.2.0" />
-
-    <PackageReference Include="JoySoftware.NetDaemon.App" Version="21.49.3" />
-    <PackageReference Include="JoySoftware.NetDaemon.DaemonRunner" Version="21.49.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
-    <PackageReference Include="JoySoftware.NetDaemon.Fakes" Version="21.49.3" />
+    <PackageReference Include="FluentAssertions" Version="6.4.0" />
+    <PackageReference Include="JoySoftware.NetDaemon.Extensions.Logging" Version="22.6.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.2-mauipre.1.22054.8" />
+    <PackageReference Include="Microsoft.Reactive.Testing" Version="5.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0-preview-20211109-03" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0-release-20220113-05" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.2-pre.12" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -27,6 +25,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\daemonapp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CronTest.cs" />
+    <Compile Remove="HeatingSchedulerTest.cs" />
   </ItemGroup>
 
 

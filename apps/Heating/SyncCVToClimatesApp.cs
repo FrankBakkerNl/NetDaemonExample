@@ -1,22 +1,23 @@
-﻿namespace Heating;
-
-[NetDaemonApp]
-public class SyncCVToClimates : IInitializable
+﻿[NetDaemonApp]
+public class SyncCVToClimates
 {
-    public SwitchEntity? HeaterSwitch { get; init; }
+    private readonly SwitchEntity _heaterSwitch;
+    private readonly IEnumerable<ClimateEntity> _climates;
 
-    public IEnumerable<ClimateEntity>? Climates { get; init; }
-
-    public void Initialize()
+    public SyncCVToClimates(ClimateZones climateZones, Entities entities)
     {
-        Climates?.StateAllChanges().Subscribe(_ => SetCvState());
-        HeaterSwitch?.StateAllChanges().Subscribe(_ => SetCvState());
+        _heaterSwitch = entities.Switch.CvUpstairsRelay;
+        _climates = climateZones.Zones.Select(z => z.Climate).ToArray(); 
+        
+        _heaterSwitch.StateChanges().Subscribe(_ => SetCvState());
+        _climates.StateAllChanges().Subscribe(_ => SetCvState());
+        SetCvState();
     }
 
     private void SetCvState()
     {
-        var anyHeating = Climates?.Any(NeedsHeat) ?? false;
-        HeaterSwitch?.SwitchTo(anyHeating ? "on" : "off");
+        var anyHeating = _climates.Any(NeedsHeat);
+        _heaterSwitch.SwitchTo(anyHeating ? "on" : "off");
     }
         
     private bool NeedsHeat(ClimateEntity climate) => 

@@ -5,7 +5,7 @@ public class KlikoControle
     private readonly Entities _entities;
     private readonly Services _services;
 
-    public KlikoControle(IHaContext ha, INetDaemonScheduler scheduler)
+    public KlikoControle(IHaContext ha, IScheduler scheduler)
     {
         _entities = new(ha);
         _services = new(ha);
@@ -17,7 +17,7 @@ public class KlikoControle
             ["pbd"]    = (_entities.BinarySensor.TrackerPmdPresence, _entities.Sensor.TrackerPmdRssiValue),
         };
 
-        scheduler.RunDaily(new TimeOnly(6, 0), () =>
+        scheduler.ScheduleCron("0 6 * * * ", () =>
         {
             Observable.Interval(TimeSpan.FromMinutes(10)).TakeUntil(_ => scheduler.Now.TimeOfDay >= TimeSpan.FromHours(9)).Subscribe(_ => CheckKliko());
         });
@@ -55,4 +55,3 @@ public class KlikoControle
         );
     }
 }
-

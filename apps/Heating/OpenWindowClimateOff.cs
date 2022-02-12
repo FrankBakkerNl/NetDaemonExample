@@ -1,48 +1,31 @@
-﻿namespace Heating;
-
-[NetDaemonApp]
-public class OpenWindowClimateOff : IInitializable
+﻿[NetDaemonApp]
+public class OpenWindowClimateOff
 {
-    public IEnumerable<ClimateZone> ClimateZones { get; init; } = Enumerable.Empty<ClimateZone>();
-
     private readonly Services _services;
     public OpenWindowClimateOff(IHaContext ha)
     {
         _services = ha.Services();
-    }
-
-    public void Initialize()
-    {
-        foreach (var zone in ClimateZones)
+        
+        foreach (var zone in new ClimateZones(ha).Zones.Where(z => z.Window != null))
         {
-            zone.Windows.StateChanges().Subscribe(_ => SyncZone(zone));
-            zone.Climates.StateAllChanges().Subscribe(_ => SyncZone(zone));
+            zone.Window!.StateChanges().Subscribe(_ => SyncZone(zone));
+            zone.Climate.StateAllChanges().Subscribe(_ => SyncZone(zone));
             SyncZone(zone);
         }
     }
 
     private void SyncZone(ClimateZone zone)
     {
-        if (!zone.Windows.Any(w => w.IsOn())) return;
+        if (!zone.Window.IsOn()) return;
 
-        foreach (var climate in zone.Climates)
+        if (zone.Climate.State != "off")
         {
-            if (climate.State != "off")
-            {
-                climate.SetHvacMode(hvacMode:"off");
-                _services.Logbook.Log(
-                    entityId:  climate.EntityId,
-                    message : "Uitgeschakeld omdat het raam open is",
-                    name : "radiator",
-                    domain : "climate");
-            }
+            zone.Climate.SetHvacMode(hvacMode:"off");
+            _services.Logbook.Log(
+                entityId:  zone.Climate.EntityId,
+                message : "Uitgeschakeld omdat het raam open is",
+                name : "radiator",
+                domain : "climate");
         }
     }
-}
-
-public class ClimateZone
-{
-    public string? Name { get; init; }
-    public IEnumerable<ClimateEntity> Climates { get; init; } = Enumerable.Empty<ClimateEntity>();
-    public IEnumerable<BinarySensorEntity> Windows { get; init; } = Enumerable.Empty<BinarySensorEntity>();
 }

@@ -1,38 +1,36 @@
-﻿using System.Reactive.Threading.Tasks;
-
-namespace Audi;
-
-[NetDaemonApp]
+﻿[NetDaemonApp]
 public class AudiApp
 {
-    private Entities _entities;
-    private Services _services;
-
-    public AudiApp(IHaContext ha, INetDaemonScheduler scheduler)
+    public AudiApp(Entities entities, Services services, IScheduler scheduler)
     {
-        _entities = new (ha);
-        _services = new (ha);
-        scheduler.RunDaily(new TimeOnly(21, 0), CheckCable);
-    }
+        scheduler.ScheduleCron("0 21 * * *", CheckCable);
+SendMessage();
+        void CheckCable()
+        {
+            if (entities.Sensor.AudiETronPlugState.State == "disconnected" &&
+                entities.Sensor.AudiETronStateOfCharge.State < 90)
+            {
+                SendMessage();
+                entities.Sensor.AudiETronPlugState.StateChanges()
+                    .Where(e => e.New?.State == "connected").Take(1)
+                    .Subscribe(_ => ClearMessage());
+            }
+        }
 
-    private async void CheckCable()
-    {
-        var shouldPlugIn = 
-            _entities.Sensor.AudiETronPlugState.State == "disconnected" &&
-            _entities.Sensor.AudiETronChargingState.AsNumeric().State < 90;
+        void SendMessage() =>
+            services.Notify.MobileAppPhoneFrank(
+                title: $"Charger cable is {entities.Sensor.AudiETronPlugState.State}",
+                message: $"🔋 {entities.Sensor.AudiETronStateOfCharge.State ?? 0:N0}% " +
+                         $"🏁 {entities.Sensor.AudiETronPrimaryEngineRange.State}km",
+                data: new
+                {
+                    tag = "ChargeCableNotification", 
+                    icon_url = "https://t4.ftcdn.net/jpg/01/13/95/01/360_F_113950177_Epw6Kf3FA1IFkAXhnicpv0VYZrBd3z48.jpg"
+                });
 
-        if (!shouldPlugIn) return;
-
-        _services.Notify.MobileAppPhoneFrank(
-            title: "🚘 Audi cable is unplugged",
-            message: $"🔋 {_entities.Sensor.AudiETronStateOfCharge.AsNumeric().State ?? 0:N0}% " +
-                     $"🏁 {_entities. Sensor.AudiETronPrimaryEngineRange.State}km",
-            data: new {tag = "ChargeCableNotification" });
-
-        await _entities.Sensor.AudiETronPlugState.StateChanges().Where(e => e.New?.State == "connected").Take(1).ToTask();
-
-        _services.Notify.MobileAppPhoneFrank(
-            message: "clear_notification",
-            data: new { tag = "ChargeCableNotification" });
-    }
+        void ClearMessage() =>
+            services.Notify.MobileAppPhoneFrank(
+                message: "clear_notification",
+                data: new { tag = "ChargeCableNotification" });
+    } 
 }

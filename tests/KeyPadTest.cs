@@ -1,8 +1,9 @@
 using System;
 using System.Reactive.Subjects;
+using HomeAssistantGenerated;
 using Microsoft.Reactive.Testing;
 using Moq;
-using NetDaemon.HassModel.Common;
+using NetDaemon.HassModel;
 using NetDaemon.HassModel.Entities;
 using Xunit;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -63,7 +64,7 @@ public class KeyPadTest
         haContextMock.Setup(m => m.Events).Returns(eventSubject);
         var scheduler = new TestScheduler();
 
-        var app = new KeypadKitchen(haContextMock.Object, scheduler);
+        var app = new KeypadKitchen(haContextMock.Object, scheduler, new Entities(haContextMock.Object));
 
         // Start holding Button
         var startHoldEent = JsonSerializer.Deserialize<Event>(startHoldButtonEvent)!; 

@@ -1,7 +1,3 @@
-using daemonapp.apps.Helpers;
-
-namespace daemonapp.apps.Cube;
-
 [NetDaemonApp]
 public class MagicCube
 {

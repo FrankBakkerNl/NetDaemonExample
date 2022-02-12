@@ -1,41 +1,37 @@
-using System.Reactive.Concurrency;
-using Keypad;
-
 [NetDaemonApp]
 public class KeypadKitchen
 {
     private readonly IScheduler _scheduler;
 
-    private readonly Entities _myEntities;
-
-    public KeypadKitchen(IHaContext ha, IScheduler? scheduler = null)
+    public KeypadKitchen(IHaContext ha, IScheduler scheduler, Entities entities)
     {
-        _myEntities = ha.MyEntities();
-        _scheduler = scheduler ?? TaskPoolScheduler.Default;
-
+        _scheduler = scheduler;
         var keypad = new KeyPad(ha, "84:71:27:ff:fe:40:78:7b");
 
         // Buttons1 => keuken
         var endpoint1 = keypad.GetEndoint(1);
-        endpoint1.On.Subscribe(_ => _myEntities.Switch.EspBwKitchen2Relay.TurnOn());
-        endpoint1.Off.Subscribe(_ => _myEntities.Switch.EspBwKitchen2Relay.TurnOff());
+        endpoint1.On.Subscribe(_ => entities.Switch.EspBwKitchen2Relay.TurnOn());
+        endpoint1.Off.Subscribe(_ => entities.Switch.EspBwKitchen2Relay.TurnOff());
 
         // Buttons 2 => Eettafel
         var endpoint2 = keypad.GetEndoint(2);
-        endpoint2.On.Subscribe(_ => OnWithStep(_myEntities.Light.LampenEettafel));
-        endpoint2.Off.Subscribe(_ => _myEntities.Light.LampenEettafel.TurnOff());
-        LongPressAdjustBrightness(endpoint2, _myEntities.Light.LampenEettafel);
+        endpoint2.On.Subscribe(_ => OnWithStep(entities.Light.LampenEettafel));
+        endpoint2.Off.Subscribe(_ => entities.Light.LampenEettafel.TurnOff());
+        LongPressAdjustBrightness(endpoint2, entities.Light.LampenEettafel);
 
         // Buttons 3 => spots
         var endpoint3 = keypad.GetEndoint(3);
-        endpoint3.On.Subscribe(_ => DuoLightCycleOnState(_myEntities.Light.SpotsWoonkamerRechts,
-            _myEntities.Light.SpotsWoonkamerLinks));
+        endpoint3.On.Subscribe(_ => DuoLightCycleOnState(entities.Light.SpotsWoonkamerRechts,
+            entities.Light.SpotsWoonkamerLinks));
 
-        endpoint3.Off.Subscribe(_ => _myEntities.Light.SpotsWoonkamerLinks.TurnOff());
-        endpoint3.Off.Subscribe(_ => _myEntities.Light.SpotsWoonkamerRechts.TurnOff());
+        endpoint3.Off.Subscribe(_ => new[] {entities.Light.SpotsWoonkamerLinks, entities.Light.SpotsWoonkamerRechts}.TurnOff());
 
-        LongPressAdjustBrightness(endpoint3, _myEntities.Light.SpotsWoonkamerLinks);
-        LongPressAdjustBrightness(endpoint3, _myEntities.Light.SpotsWoonkamerRechts);
+        LongPressAdjustBrightness(endpoint3, entities.Light.SpotsWoonkamerLinks);
+        LongPressAdjustBrightness(endpoint3, entities.Light.SpotsWoonkamerRechts);
+
+        // Kerstboom
+        keypad.GetEndoint(4).On.Subscribe(_ => entities.Switch.EspBwSpotlivingleftRelay.TurnOn());
+        keypad.GetEndoint(4).Off.Subscribe(_ => entities.Switch.EspBwSpotlivingleftRelay.TurnOff());
     }
 
     private void OnWithStep(LightEntity light) => light.TurnOn(brightness: light.IsOff() ? 128 : 256);

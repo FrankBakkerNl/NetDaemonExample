@@ -1,5 +1,5 @@
-# NetDaemonExamplel
+# NetDaemonExample
 
-These are my own [NetDaemon](https://netdaemon.xyz/) applications I use for my home.
+These are my own automations using [NetDaemon](https://netdaemon.xyz/) 
 
-Besides being usefull for myself, they are here as an example for how to use NetDaemon for your own automations
+Besides being useful for myself, they are here as an example for how to use NetDaemon for your own automations

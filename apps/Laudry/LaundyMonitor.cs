@@ -1,6 +1,4 @@
-﻿namespace Laundry;
-
-[NetDaemonApp]
+﻿[NetDaemonApp]
 public class LaundyMonitor
 {
     private readonly Entities _entities;
@@ -18,37 +16,31 @@ public class LaundyMonitor
         _entities.Sensor.DryerState.StateChanges().Where(e => e.Old?.State == "Ready").Subscribe(_ => DryerReset());
     }
 
-    private void WasherReady()
-    {
+    private void WasherReady() =>
         Notify.MobileAppPhoneFrank(
-            message: $"⌛ {TimeSpan.FromSeconds((long?)_entities.Sensor.WasherProgramTime.AsNumeric().State ?? 0)}" +
-                     $"⚡ {_entities.Sensor.WasherProgramEnergy.AsNumeric().State:N0} Wh " +
-                     $"💶 € {(_entities.Sensor.WasherProgramEnergy.AsNumeric().State) * 0.22 / 1000:N2}",
+            message: $"⌛ {TimeSpan.FromSeconds(_entities.Sensor.WasherProgramTime.State ?? 0.0):hh\\:mm}" +
+                     $"⚡ {_entities.Sensor.WasherProgramEnergy.State:N0} Wh " +
+                     $"💶 € {_entities.Sensor.WasherProgramEnergy.State * 0.22 / 1000:N2}",
             title: "🧺 Washer finished",
             data: new { tag = "WasherNotification" }
         );
-    }
 
-    private void WasherReset()
-    {
-        Notify.MobileAppPhoneFrank(message: "clear_notification",
-            data: new { tag = "WasherNotification" });
-    }
-
-    private void DryerReady()
-    {
+    private void WasherReset() =>
         Notify.MobileAppPhoneFrank(
-            message: $"⌛ {TimeSpan.FromSeconds((long?)_entities.Sensor.DryerProgramTime.AsNumeric().State ?? 0)}" +
-                     $"⚡ {_entities.Sensor.DryerProgramEnergy.AsNumeric().State:N0}" +
-                     $"💶 € {(_entities.Sensor.DryerProgramEnergy.AsNumeric().State ?? 0) * 0.22 / 1000:N2}",
+            message: "clear_notification",
+            data: new { tag = "WasherNotification" });
+    
+
+    private void DryerReady() =>
+        Notify.MobileAppPhoneFrank(
+            message: $"⌛ {TimeSpan.FromSeconds(_entities.Sensor.DryerProgramTime.State ?? 0.0):hh\\:mm}" +
+                     $"⚡ {_entities.Sensor.DryerProgramEnergy.State:N0}" +
+                     $"💶 € {(_entities.Sensor.DryerProgramEnergy.State ?? 0) * 0.22 / 1000:N2}",
             title: "🧺 Dryer finished",
             data: new { tag = "DryerNotification"});
-    }
 
-    private void DryerReset()
-    {
+    private void DryerReset() =>
         Notify.MobileAppPhoneFrank(
             message : "clear_notification",
             data : new { tag = "DryerNotification" });
-    }
 }

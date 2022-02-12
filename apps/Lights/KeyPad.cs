@@ -1,8 +1,3 @@
-using System.Text.Json;
-using daemonapp.apps.Helpers;
-
-namespace Keypad;
-
 public class KeyPad
 {
     private IObservable<ZhaEventData> _keyPadEvents;
@@ -29,11 +24,11 @@ public class KeyPad
         public IObservable<ZhaEventData> Off => AllEvents.Where(e => e.Command == "off");
         public IObservable<ZhaEventData> StartLongPressOn =>
             AllEvents.Where(e => e.Command == "move_with_on_off" 
-                                 && ((JsonElement?)  ((JsonElement) e.args!).EnumerateArray().ElementAtOrDefault(0))?.GetInt32() != 1);
+                                 && (e.Args?.EnumerateArray().ElementAtOrDefault(0))?.GetInt32() != 1);
             
         public IObservable<ZhaEventData> StartLongPressOff =>
             AllEvents.Where(e => e.Command == "move_with_on_off" 
-                                 && ((JsonElement?)  ((JsonElement) e.args!).EnumerateArray().ElementAtOrDefault(0))?.GetInt32() == 1);            
+                                 && (e.Args?.EnumerateArray().ElementAtOrDefault(0))?.GetInt32() == 1);            
             
         public IObservable<ZhaEventData> StopLong => AllEvents.Where(e => e.Command == "stop");            
             
