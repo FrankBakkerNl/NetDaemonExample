@@ -5,10 +5,10 @@ public class KlikoControle
     private readonly Entities _entities;
     private readonly Services _services;
 
-    public KlikoControle(IHaContext ha, IScheduler scheduler)
+    public KlikoControle(Entities entities, Services services, IScheduler scheduler)
     {
-        _entities = new(ha);
-        _services = new(ha);
+        _entities = entities;
+        _services = services;
         
         _sensorMap = new Dictionary<string, (BinarySensorEntity, NumericSensorEntity)>()
         {
@@ -17,7 +17,7 @@ public class KlikoControle
             ["pbd"]    = (_entities.BinarySensor.TrackerPmdPresence, _entities.Sensor.TrackerPmdRssiValue),
         };
 
-        scheduler.ScheduleCron("0 6 * * * ", () =>
+        scheduler.ScheduleCron("0 6 * * *", () =>
         {
             Observable.Interval(TimeSpan.FromMinutes(10)).TakeUntil(_ => scheduler.Now.TimeOfDay >= TimeSpan.FromHours(9)).Subscribe(_ => CheckKliko());
         });

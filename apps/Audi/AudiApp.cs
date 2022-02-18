@@ -4,7 +4,7 @@ public class AudiApp
     public AudiApp(Entities entities, Services services, IScheduler scheduler)
     {
         scheduler.ScheduleCron("0 21 * * *", CheckCable);
-SendMessage();
+
         void CheckCable()
         {
             if (entities.Sensor.AudiETronPlugState.State == "disconnected" &&

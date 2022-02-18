@@ -1,6 +1,6 @@
 using System;
-using System.Reactive.Subjects;
-using HomeAssistantGenerated;
+using daemonapp_test.Heating;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Reactive.Testing;
 using Moq;
 using NetDaemon.HassModel;
@@ -10,7 +10,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace daemonapp_test;
 
-public class KeyPadTest
+public class KeyPadTest : TestBase
 {
     private const string startHoldButtonEvent = @"
 {
@@ -59,29 +59,26 @@ public class KeyPadTest
     [Fact]
     public void TestKeypad3()
     {
-        var haContextMock = new Mock<IHaContext>();
-        var eventSubject = new Subject<Event>();
-        haContextMock.Setup(m => m.Events).Returns(eventSubject);
-        var scheduler = new TestScheduler();
+        var scheduler = Context.GetRequiredService<TestScheduler>();
 
-        var app = new KeypadKitchen(haContextMock.Object, scheduler, new Entities(haContextMock.Object));
+        var app = Context.GetApp<KeypadKitchen>();
 
         // Start holding Button
         var startHoldEent = JsonSerializer.Deserialize<Event>(startHoldButtonEvent)!; 
-        eventSubject.OnNext(startHoldEent);
+        HaMock.TriggerEvent(startHoldEent);
             
         // Hold for 1 second
         scheduler.AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
-        haContextMock.Verify(m=>m.CallService("light", "turn_on", 
-            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
+        HaMock.Verify(m=>m.CallService("light", "turn_on", 
+            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(8));
 
         // Stop hold Button
-        var stoptOneEent = JsonSerializer.Deserialize<Event>(stopHoldButtonEvent)!; 
-        eventSubject.OnNext(stoptOneEent);
+        var stopHoldEvent = JsonSerializer.Deserialize<Event>(stopHoldButtonEvent)!; 
+        HaMock.TriggerEvent(stopHoldEvent);
 
         // Assert
         scheduler.AdvanceBy(TimeSpan.FromSeconds(10).Ticks);
-        haContextMock.Verify(m=>m.CallService("light", "turn_on",
-            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(10));
+        HaMock.Verify(m=>m.CallService("light", "turn_on",
+            It.IsAny<ServiceTarget>(), It.IsAny<object?>()), Times.Exactly(8));
     }
 }

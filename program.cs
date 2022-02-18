@@ -13,7 +13,6 @@ try
     await Host.CreateDefaultBuilder(args)
         .UseNetDaemonAppSettings()
         .UseCustomLogging()
-//        .UseNetDaemonDefaultLogging()
         .UseNetDaemonRuntime()
         .UseNetDaemonTextToSpeech()
         .UseNetDaemonMqttEntityManagement()

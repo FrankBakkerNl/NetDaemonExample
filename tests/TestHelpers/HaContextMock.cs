@@ -8,12 +8,11 @@ using Moq;
 using NetDaemon.HassModel;
 using NetDaemon.HassModel.Entities;
 
-namespace daemonapp_test.Heating;
+namespace daemonapp_test;
 
-
-public class HaCOntextMockImpl : IHaContext
+public class HaContextMockImpl : IHaContext
 {
-    public Dictionary<string, EntityState> _entityStates = new ();
+    public Dictionary<string, EntityState> _entityStates { get; } = new ();
     public Subject<StateChange> StateAllChangeSubject { get; } = new();
     public Subject<Event> EventsSubject { get; } = new();
 
@@ -28,20 +27,43 @@ public class HaCOntextMockImpl : IHaContext
 
     public Area? GetAreaFromEntityId(string entityId) => null;
 
-    public void SendEvent(string eventType, object? data = null)
-    {
-    }
+    public virtual void SendEvent(string eventType, object? data = null)
+    { }
 
     public IObservable<Event> Events => EventsSubject;
 }
 
-public class HaContextMock : Mock<HaCOntextMockImpl>
+public class HaContextMock : Mock<HaContextMockImpl>
 {
-    public void UpdateState(string entityId, EntityState newState)
+
+    public void TriggerStateChange(Entity entity, string newStatevalue, object? attributes = null)
+    {
+        var newState = new EntityState { State = newStatevalue };
+        if (attributes != null)
+        {
+            newState = newState.WithAttributes(attributes);
+        }
+        
+        TriggerStateChange(entity.EntityId, newState);
+    }    
+    
+    public void TriggerStateChange(string entityId, EntityState newState)
     {
         var oldState = Object._entityStates.TryGetValue(entityId, out var current) ? current : null;
         Object._entityStates[entityId] = newState;
         Object.StateAllChangeSubject.OnNext(new StateChange(new Entity(this.Object, entityId), oldState, newState));
+    }
+
+    public void VerifyServiceCalled(Entity entity, string domain, string service)
+    {
+        Verify(m => m.CallService(domain, service, 
+            It.Is<ServiceTarget?>(s => s!.EntityIds!.SingleOrDefault() == entity.EntityId),
+            null));        
+    }
+
+    public void TriggerEvent(Event @event)
+    {
+        Object.EventsSubject.OnNext(@event);
     }
  }
 

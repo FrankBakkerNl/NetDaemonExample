@@ -66,15 +66,15 @@ public class KeypadKitchen
 
     private void LongPressAdjustBrightness(KeyPad.Endpoint endpoint, LightEntity light)
     {
-        endpoint.StartLongPressOn.Subscribe(_ => SlideBrighness(light, 20, endpoint.StopLong));
-        endpoint.StartLongPressOff.Subscribe(_ => SlideBrighness(light, -20, endpoint.StopLong));
+        endpoint.StartLongPressOn.Subscribe(_ => SlideBrighness(light, 10, endpoint.StopLong));
+        endpoint.StartLongPressOff.Subscribe(_ => SlideBrighness(light, -10, endpoint.StopLong));
     }
 
     private void SlideBrighness(LightEntity light, long delta, IObservable<object> stopSlide)
     {
         var current = (long?)light.EntityState?.Attributes?.Brightness ?? 0;
 
-        var subscribtion = Observable.Interval(TimeSpan.FromMilliseconds(200), _scheduler)
+        var subscribtion = Observable.Interval(TimeSpan.FromMilliseconds(250), _scheduler)
             .TakeWhile(i => AdjustBrightness(light, current + (i + 1) * delta)).Subscribe();
 
         stopSlide.Take(1).Subscribe(_ => subscribtion.Dispose());
@@ -90,9 +90,9 @@ public class KeypadKitchen
             result = false;
         }
 
-        if (newValue < 1)
+        if (newValue < 10)
         {
-            newValue = 1;
+            newValue = 10;
             result = false;
         }
 

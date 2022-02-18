@@ -13,5 +13,9 @@ public class PingND
             ha.Services().Logbook.Log("Ping", "NetDaemon was pinged", inputBooleanPingpong.EntityId);
             scheduler.RunIn(TimeSpan.FromSeconds(0.5), () => inputBooleanPingpong.TurnOff());
         });
+        
+        ha.Services().Notify.MobileAppPhoneFrank(
+            title: $"NetDaemon restarted",
+            message: $"{DateTime.Now}");
     }
 }

@@ -48,17 +48,6 @@ public static class Extensions
         }
     }
 
-    public static void RunDaily(this INetDaemonScheduler scheduler, TimeOnly timeOfDay, Action action)
-    {
-        var now = scheduler.Now.LocalDateTime.AddSeconds(1); // add some time to be sure we do not schedule for a time in the past 
-        DateTime startDateTimeToday = now.Date.Add(timeOfDay.ToTimeSpan());
-        
-        var startTime = startDateTimeToday < now ? startDateTimeToday.AddDays(1) : startDateTimeToday;
-        var startOffset = (DateTimeOffset)startTime;
-        
-        scheduler.RunEvery(TimeSpan.FromDays(1), startOffset, action);
-    }
-
     public static IDisposable WhenTurnsOn<TEntity, TAttributes>(this Entity<TEntity, EntityState<TAttributes>, TAttributes> entity,
         Action<StateChange<TEntity, EntityState<TAttributes>>> action)
         where TAttributes : class
@@ -66,7 +55,7 @@ public static class Extensions
         => entity.StateChanges().Where(c => c.New?.IsOn() ?? false).Subscribe(action);
     
     public static Entity ToTypedEntity(this Entity entity) =>
-        entity.EntityId[0..(entity.EntityId.IndexOf("."))] switch
+        entity.EntityId[..entity.EntityId.IndexOf(".")] switch
         {
             "automation" => new AutomationEntity(entity),
             "binary_sensor" => new BinarySensorEntity((entity)),
@@ -87,4 +76,14 @@ public static class Extensions
             if (!wasTrue && isTrue) whenBecomesTrue();
             if (wasTrue && !isTrue) whenBecomesFalse();
         });
+
+    public static Entity GetTypedEntity(Entity entity) =>
+        entity.EntityId[entity.EntityId.IndexOf(".") ..] switch
+        {
+            "automation" => new AutomationEntity(entity),
+            "climate" => new ClimateEntity(entity),
+            "light" => new LightEntity(entity),
+            // ...
+            _ => entity
+        };
 }

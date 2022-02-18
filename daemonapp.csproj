@@ -22,7 +22,6 @@
     <Compile Remove="tests\**" />
     <EmbeddedResource Remove="apps\Common\**" />
     <None Remove="apps\Common\**" />
-    <Compile Remove="Apps\Lights\Wakeup.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JoySoftware.NetDaemon.AppModel" Version="22.6.3" />
