@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "joysoftware.netdaemon.hassmodel.codegen": {
+      "version": "22.50.1",
+      "commands": [
+        "nd-codegen"
+      ]
+    }
+  }
+}

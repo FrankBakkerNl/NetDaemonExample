@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Apps",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net6.0/Norbert86.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "DOTNET_ENVIRONMENT": "Development",
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "stopAtEntry": false,
+            "logging": {
+                "moduleLoad": false
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ]
+}

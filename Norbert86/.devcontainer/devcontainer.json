@@ -1,0 +1,12 @@
+{
+  "name": "NetDaemon App-development",
+  "dockerFile": "./Dockerfile",
+  "postCreateCommand": "dotnet restore *.csproj",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "terminal.integrated.fontSize": 10
+  },
+  "extensions": [
+    "ms-dotnettools.csharp"
+  ]
+}
