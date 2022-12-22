@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using NetDaemon.Extensions.Logging;
 using NetDaemon.Extensions.Tts;
 using NetDaemon.Runtime;
+using Serilog;
 
 #pragma warning disable CA1812
 
@@ -10,9 +11,8 @@ try
 {
     await Host.CreateDefaultBuilder(args)
         .UseNetDaemonAppSettings()
-        .UseNetDaemonDefaultLogging()
+        .UseCustomLogging()
         .UseNetDaemonRuntime()
-        .UseNetDaemonTextToSpeech()
         .ConfigureServices((_, services) =>
             services
                 .AddAppsFromAssembly(Assembly.GetExecutingAssembly())

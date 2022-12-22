@@ -3,7 +3,6 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>10.0</LangVersion>
         <Nullable>enable</Nullable>
         <RootNamespace>Norbert86</RootNamespace>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -37,6 +36,7 @@
         <PackageReference Include="JoySoftware.NetDaemon.Extensions.Tts" Version="22.50.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
         <PackageReference Include="System.Reactive" Version="5.0.0" />
     </ItemGroup>
 </Project>
