@@ -4,21 +4,20 @@ using NetDaemon.Client.HomeAssistant.Extensions;
 using Serilog.Core;
 using Serilog.Events;
 
-class HomeAssistantLogSink : ILogEventSink
+class HomeAssistantLogSink(IServiceProvider provider) : ILogEventSink
 {
-    private readonly IServiceProvider _provider;
-
-    public HomeAssistantLogSink(IServiceProvider provider)
-    {
-        _provider = provider;
-    }
-    
     public void Emit(LogEvent logEvent)
     {
-        var connection = _provider.GetService<IHomeAssistantConnection>();
+        var connection = provider.GetService<IHomeAssistantConnection>();
         var level = MapLogLevel(logEvent);
-        var logger  = "NetDaemon." + logEvent.Properties["SourceContext"]?.ToString().Replace("\"", "");
-        connection?.CallServiceAsync("system_log", "write", new { message = logEvent.RenderMessage(), level, logger});
+        var logger =logEvent.Properties["SourceContext"]?.ToString().Replace("\"", "");
+        if (!logger?.StartsWith("NetDaemon.") ?? false) logger = "NetDaemon." + logger;
+        
+        var message = logEvent.RenderMessage();
+
+        // prevent recursive logging
+        if (message.Contains("Exception in NetDaemon")) return;
+        connection?.CallServiceAsync("system_log", "write", new { message = "Exception in NetDaemon: " + message, level, logger});
     }
     
     private static string MapLogLevel(LogEvent logEvent) =>

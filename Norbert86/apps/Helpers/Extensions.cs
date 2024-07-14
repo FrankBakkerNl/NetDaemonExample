@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Norbert86.apps.Helpers;
 
 namespace Norbert.Apps.Helpers;
 
@@ -9,7 +10,7 @@ public static class Extensions
             .AddTransient<ClimateZones>()
             .AddTransient<BrightnessSlider>()
             .AddTransient(s => s.GetRequiredService<SunEntities>().Sun)
-        ;
+            .AddTransient<KeukenRtttl>();
     
     public static void SwitchTo(this LightEntity? light, string? newState)
     {
@@ -64,12 +65,12 @@ public static class Extensions
         where TEntity : Entity<TEntity, EntityState<TAttributes>, TAttributes>
         => entity.StateChanges().Where(c => c.New?.IsOff() ?? false).Subscribe(action);    
     
-    public static Entity ToTypedEntity(this Entity entity) =>
-        entity.EntityId[0..(entity.EntityId.IndexOf("."))] switch
+    public static Entity ToTypedEntity_(this Entity entity) =>
+        entity.EntityId[..entity.EntityId.IndexOf(".")] switch
         {
             "automation" => new AutomationEntity(entity),
             "binary_sensor" => new BinarySensorEntity((entity)),
-            "climate" => new ClimateEntity((entity)),
+            "climate" => new ClimateEntity(entity),
             _ => entity
         };
     
@@ -86,7 +87,14 @@ public static class Extensions
             if (!wasTrue && isTrue) whenBecomesTrue();
             if (wasTrue && !isTrue) whenBecomesFalse();
         });
-        
+
+    public static IObservable<T> SkipFor<T>(this IObservable<T> source, TimeSpan ts, IScheduler scheduler)
+    {
+        var skipUntil = scheduler.Now + ts;
+        return source.Timestamp(scheduler).Where(t => t.Timestamp >= skipUntil).Select(t => t.Value);
+    }
+
+    
         public static IObservable<T> ThrottleTime<T>(this IObservable<T> source, TimeSpan ts)
         {
             return ThrottleTime(source, ts, Scheduler.Default);

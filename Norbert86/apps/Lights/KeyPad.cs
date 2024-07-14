@@ -11,14 +11,9 @@ public class KeyPad
 
     public Endpoint GetEndoint(int endpointId) => new (_keyPadEvents.Where(e => e.EndpointId == endpointId));
 
-    public class Endpoint
+    public class Endpoint(IObservable<ZhaEventData> endpointEvents)
     {
-        public IObservable<ZhaEventData> AllEvents { get; }
-
-        public Endpoint(IObservable<ZhaEventData> endpointEvents)
-        {
-            AllEvents = endpointEvents;
-        }
+        public IObservable<ZhaEventData> AllEvents { get; } = endpointEvents;
 
         public IObservable<ZhaEventData> On => AllEvents.Where(e => e.Command == "on");
         public IObservable<ZhaEventData> Off => AllEvents.Where(e => e.Command == "off");

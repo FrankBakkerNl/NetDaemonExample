@@ -12,9 +12,9 @@ public class KlikoControle
         
         _sensorMap = new Dictionary<string, (BinarySensorEntity, NumericSensorEntity)>()
         {
-            ["gft"]    = (_entities.BinarySensor.TrackerGftPresence, _entities.Sensor.TrackerGftRssiValue),
-            ["papier"] = (_entities.BinarySensor.TrackerPapierPresence, _entities.Sensor.TrackerPapierRssiValue), 
-            ["pbd"]    = (_entities.BinarySensor.TrackerPmdPresence, _entities.Sensor.TrackerPmdRssiValue),
+            // ["gft"]    = (_entities.BinarySensor.TrackerGftPresence, _entities.Sensor.TrackerGftRssiValue),
+            // ["papier"] = (_entities.BinarySensor.TrackerPapierPresence, _entities.Sensor.TrackerPapierRssiValue), 
+            // ["pbd"]    = (_entities.BinarySensor.TrackerPmdPresence, _entities.Sensor.TrackerPmdRssiValue),
         };
 
         scheduler.ScheduleCron("0 6 * * *", () =>

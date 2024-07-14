@@ -3,7 +3,7 @@ public class KeypadKitchen
 {
     private readonly BrightnessSlider _slider;
 
-    public KeypadKitchen(IHaContext ha, Entities entities, BrightnessSlider slider)
+    public KeypadKitchen(IHaContext ha, Entities entities, BrightnessSlider slider, IScheduler scheduler)
     {
         _slider = slider;
         var keypad = new KeyPad(ha, "84:71:27:ff:fe:40:78:7b");
@@ -29,8 +29,26 @@ public class KeypadKitchen
         LongPressAdjustBrightness(endpoint3, entities.Light.AlleSpotsWoonkamer);
 
         // Kerstboom
-        keypad.GetEndoint(4).On.Subscribe(_ => entities.Light.Kerstboomlampen.TurnOn());
-        keypad.GetEndoint(4).Off.Subscribe(_ => entities.Light.Kerstboomlampen.TurnOff());
+        keypad.GetEndoint(4).On.Subscribe(_ => entities.Switch.EspBwSpotlivingrightRelay.TurnOn());
+        keypad.GetEndoint(4).Off.Subscribe(_ => entities.Switch.EspBwSpotlivingrightRelay.TurnOff());
+
+
+        keypad.GetEndoint(4).StartLongPressOff.Subscribe(e =>
+        {
+            var timeout = Observable.Timer(TimeSpan.FromSeconds(1), scheduler).Subscribe(_ =>
+            {
+                AllesUit(entities);            
+            });
+            keypad.GetEndoint(4).StartLongPressOff.Take(1).Subscribe(_ => timeout.Dispose());
+        });
+        
+        entities.BinarySensor.EspKitchenPanelRightButton.WhenTurnsOn( _ => { AllesUit(entities); });
+    }
+
+    private void AllesUit(Entities entities)
+    {
+        entities.Light.AllesBeneden.TurnOff();
+        entities.MediaPlayer.Keuken.MediaStop();
     }
 
     private void OnWithStep(LightEntity light) => light.TurnOn(brightness: light.IsOff() ? 128 : 256);

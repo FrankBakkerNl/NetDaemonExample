@@ -1,16 +1,16 @@
-using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Reactive.Testing;
 using Moq;
 using NetDaemon.HassModel;
 using NetDaemon.HassModel.Entities;
 using Norbert86.Test.TestHelpers;
+using static System.Text.Json.JsonSerializer;
 
 namespace Norbert86.Test.Apps.Lights;
 
 public class KeyPadTest : TestBase
 {
-    private const string startHoldButtonEvent = """
+    private readonly Event startHoldButtonEvent = Deserialize<Event>("""
         {
             "event_type": "zha_event",
             "data": {
@@ -33,9 +33,9 @@ public class KeyPadTest : TestBase
                 "user_id": null
             }
         }
-        """;
+        """)!;
 
-    private const string stopHoldButtonEvent = """
+    private readonly Event stopHoldButtonEvent = Deserialize<Event>("""
         {
             "event_type": "zha_event",
             "data": {
@@ -55,8 +55,8 @@ public class KeyPadTest : TestBase
                 "user_id": null
             }
         }
-        """;
-        
+        """)!;
+
     [Fact]
     public void TestKeypad3()
     {
@@ -65,8 +65,7 @@ public class KeyPadTest : TestBase
         Context.GetApp<KeypadKitchen>();
 
         // Start holding Button
-        var startHoldEent = JsonSerializer.Deserialize<Event>(startHoldButtonEvent)!; 
-        HaMock.TriggerEvent(startHoldEent);
+        HaMock.TriggerEvent(startHoldButtonEvent);
             
         // Hold for 1 second
         scheduler.AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
@@ -75,8 +74,7 @@ public class KeyPadTest : TestBase
             Times.Exactly(4));
 
         // Stop hold Button
-        var stopHoldEvent = JsonSerializer.Deserialize<Event>(stopHoldButtonEvent)!; 
-        HaMock.TriggerEvent(stopHoldEvent);
+        HaMock.TriggerEvent(stopHoldButtonEvent);
 
         // Assert
         scheduler.AdvanceBy(TimeSpan.FromSeconds(10).Ticks);

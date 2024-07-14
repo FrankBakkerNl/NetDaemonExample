@@ -21,6 +21,7 @@ public class TestContext : IServiceProvider
         
         _serviceCollection.AddSingleton(_ => new HaContextMock());
         _serviceCollection.AddTransient<IHaContext>(s => s.GetRequiredService<HaContextMock>().Object);
+        _serviceCollection.AddTransient<HaContextMockImpl>(s => s.GetRequiredService<HaContextMock>().Object);
         _serviceCollection.AddSingleton<TestScheduler>();
         _serviceCollection.AddTransient<IScheduler>(s => s.GetRequiredService<TestScheduler>());
         _serviceCollection.AddTransient(typeof(ILogger<>), typeof(NullLogger<>));

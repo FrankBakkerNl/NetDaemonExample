@@ -3,40 +3,37 @@ public class LaundyMonitor
 {
     private readonly Entities _entities;
     private readonly NotifyServices _notify;
+    private readonly EsphomeServices _esphomeServices;
 
-    public LaundyMonitor(Entities entities, NotifyServices notifyServices, ILogger<LaundyMonitor> logger)
+    public LaundyMonitor(Entities entities, NotifyServices notifyServices, ILogger<LaundyMonitor> logger, EsphomeServices esphomeServices)
     {
         _entities = entities;
         _notify = notifyServices;
-            
-        _entities.Sensor.WasherState.StateChanges().Where(e => e.Old?.State == "Running").SubscribeSafe(_ => WasherReady(), logger);
-        _entities.Sensor.WasherState.StateChanges().Where(e => e.New?.State == "Running").SubscribeSafe(_ => WasherReset(), logger);
+        _esphomeServices = esphomeServices;
 
         _entities.Sensor.DryerState.StateChanges().Where(e => e.Old?.State == "Running" && e.New?.State == "Ready").SubscribeSafe(_ => DryerReady(), logger);
         _entities.Sensor.DryerState.StateChanges().Where(e => e.Old?.State == "Ready").SubscribeSafe(_ => DryerReset(), logger);
     }
 
-    private void WasherReady() => _notify.MobileAppPhoneFrank(
-            message: $"⌛ {TimeSpan.FromSeconds(_entities.Sensor.WasherProgramTime.State ?? 0.0):hh\\:mm}" +
-                     $"⚡ {_entities.Sensor.WasherProgramEnergy.State:N0} Wh " +
-                     $"💶 € {_entities.Sensor.WasherProgramEnergy.State * 0.22 / 1000:N2}",
-            title: "🧺 Washer finished",
-            data: new { tag = "WasherNotification" }
-        );
-
-    private void WasherReset() => _notify.MobileAppPhoneFrank(
-            message: "clear_notification",
-            data: new { tag = "WasherNotification" });
-    
-
-    private void DryerReady() => _notify.MobileAppPhoneFrank(
+    private void DryerReady()
+    {
+        _esphomeServices.EspKitchenPanelNotificationShow("Droger", "De droger is klaar");
+        _esphomeServices.EspKitchenPanelPlayRtttl("smb2:d=4,o=5,b=130:8p,8p,8g5,8a5,8f6,16g6,16p,16e6,8c6,16d6,8b5");
+        
+        _notify.MobileAppPhoneFrank(
             message: $"⌛ {TimeSpan.FromSeconds(_entities.Sensor.DryerProgramTime.State ?? 0.0):hh\\:mm}" +
                      $"⚡ {_entities.Sensor.DryerProgramEnergy.State:N0}" +
-                     $"💶 € {(_entities.Sensor.DryerProgramEnergy.State ?? 0) * 0.22 / 1000:N2}",
+                     $"💶 € {(_entities.Sensor.DryerProgramEnergy.State ?? 0) * _entities.InputNumber.EnergyTarif.State / 1000:N2}",
             title: "🧺 Dryer finished",
             data: new { tag = "DryerNotification" });
+    }
 
-    private void DryerReset() => _notify.MobileAppPhoneFrank(
-            message : "clear_notification",
-            data : new { tag = "DryerNotification" });
+    private void DryerReset()
+    {
+        _esphomeServices.EspKitchenPanelNotificationClear();
+
+        _notify.MobileAppPhoneFrank(
+            message: "clear_notification",
+            data: new { tag = "DryerNotification" });
+    }
 }

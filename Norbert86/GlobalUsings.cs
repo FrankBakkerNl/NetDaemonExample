@@ -11,3 +11,4 @@ global using NetDaemon.AppModel;
 global using Norbert.Apps.Helpers;
 global using System.Reactive.Threading.Tasks;
 global using System.Reactive.Concurrency;
+global using System.Threading.Tasks;

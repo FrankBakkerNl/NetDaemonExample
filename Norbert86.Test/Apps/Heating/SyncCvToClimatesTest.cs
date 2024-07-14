@@ -9,7 +9,7 @@ public class SyncCvToClimatesTest : TestBase
     public void CvOnWhenHeatNeeded()
     {
         HaMock.TriggerStateChange(Entities.Switch.CvUpstairsRelay, "off");
-        HaMock.TriggerStateChange(Entities.Climate.RadiatorBadkamerThermostat, "heat", 
+        HaMock.TriggerStateChange(Entities.Climate.TrvBadkamer, "heat", 
             new ClimateAttributes
             {
                 CurrentTemperature = 20,
@@ -19,7 +19,7 @@ public class SyncCvToClimatesTest : TestBase
 
         Context.GetApp<SyncCVToClimates>();
         
-        HaMock.TriggerStateChange(Entities.Climate.RadiatorBadkamerThermostat, "heat",
+        HaMock.TriggerStateChange(Entities.Climate.TrvBadkamer, "heat",
             new ClimateAttributes
             {
                 CurrentTemperature = 19,
@@ -31,7 +31,7 @@ public class SyncCvToClimatesTest : TestBase
         // manually sync the state of the switch
         HaMock.TriggerStateChange(Entities.Switch.CvUpstairsRelay, "on");
         
-        HaMock.TriggerStateChange(Entities.Climate.RadiatorBadkamerThermostat, "heat",
+        HaMock.TriggerStateChange(Entities.Climate.TrvBadkamer, "heat",
             new ClimateAttributes
             {
                 CurrentTemperature = 21,

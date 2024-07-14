@@ -9,7 +9,7 @@ public class BrightnessSlider
     
     public IDisposable StartSliding(LightEntity light, TimeSpan interval, long delta)
     {
-        var current = light.EntityState?.Attributes?.Brightness ?? 0;
+        var current = (long)(double)(light.EntityState?.Attributes?.Brightness ?? 0.0);
 
         return Observable.Interval(interval, _scheduler)
             .TakeWhile(i => AdjustBrightness(light, current + (i + 1) * delta)).Subscribe();

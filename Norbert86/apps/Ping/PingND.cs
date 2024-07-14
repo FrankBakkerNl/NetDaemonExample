@@ -13,8 +13,8 @@ public class PingND : IDisposable
         _services.Logbook.Log("Ping", "NetDaemon started", _inputBooleanPingpong.EntityId);
 
         _services.Notify.MobileAppPhoneFrank(
-            title: $"NetDaemon restarted: {DateTime.Now}",
-            message: $"{DateTime.Now}");
+            title: $"NetDaemon restarted",
+            message: $"{DateTime.Now:T}");
 
         _inputBooleanPingpong.WhenTurnsOff(_ =>
         {
@@ -27,10 +27,9 @@ public class PingND : IDisposable
     {
         _inputBooleanPingpong.TurnOff();
         _services.Logbook.Log("Ping", "NetDaemon stopped", _inputBooleanPingpong.EntityId);
-
         
         _services.Notify.MobileAppPhoneFrank(
-            title: $"NetDaemon stopped: {DateTime.Now}",
-            message: $"{DateTime.Now}");
+            title: $"NetDaemon stopped",
+            message: $"{DateTime.Now:T}");
     }
 }
